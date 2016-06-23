@@ -9,4 +9,4 @@ install:
   - sudo pip install ansible
 
 script:
-  - ansible-playbook -i tests/inventory main.yml --check --connection=local 
+  - ansible-playbook -i tests/inventory main.yml --syntax-check --connection=local 
