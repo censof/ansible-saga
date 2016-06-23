@@ -1,0 +1,38 @@
+---
+# - hosts: all
+- name: Make directory
+  file: path={{ informix_home_dir }}/{{ item }} state=directory owner=root
+  with_items:
+    - installer
+    - infx
+
+- name: Manage Informix user
+  user: name=informix shell=/bin/bash state=present
+
+- name: Create pre-requisite files
+  file: path={{ informix_home_dir }}/{{ item }}dbs.{{ informix_version }} state=file
+  with_items:
+    - root
+    - data
+    - log
+    - phy
+
+- name: Add informix path to .bash_profile
+  lineinfile: dest=/home/informix/.bash_profile regexp='INFORMIXDIR/bin'
+              line=PATH=$INFORMIXDIR/bin:$PATH
+              create=yes
+
+- name: Add the paths to .bash_profile
+  lineinfile: dest=/home/informix/.bash_profile regexp={{ item }}
+              line={{ item }}
+              create=yes
+  with_items:
+     - INFORMIXDIR=/opt/IBM/Informix/ids/11.70"
+     - INFORMIXSERVER=ol_csmsaga
+     - ONCONFIG=onconfig.csmsaga
+     - DBDATE=DMY4/
+
+- name: Add saga services to /etc/services
+  lineinfile: dest=/etc/services regexp='^{{ item.value.service_name }}\s'
+              line="{{ item.value.service_name}}    {{ item.value.port }}    {{ '#' }} {{ item.value.service_name }}"
+  with_dict: services

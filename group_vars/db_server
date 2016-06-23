@@ -1,0 +1,9 @@
+informix_version: 11.001 
+informix_home_dir: /infxdata/ids
+services:
+  service_csmsaga:
+    service_name: "service_csmsaga"
+    port: "21100/tcp"
+  service_csmsagatcp:
+    service_name: "service_csmsagatcp"
+    port: "21200/tcp"
