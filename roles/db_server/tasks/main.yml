@@ -36,10 +36,10 @@
   command: ./ids_install -i silent -DLICENSE_ACCEPTED=TRUE -DUSER_INSTALL_DIR={{ informix_dir }}
   args: 
     chdir: /opt/installer
-    creates: "{{ informix_dir }}"
+    creates: "{{ informix_dir }}{{ '/uninstall' }}"
 
 - name: Install onconfig.csmsaga
-  template: src=templates/onconfig.csmsaga dest={{ informix_dir }}/etc 
+  template: src=templates/onconfig.csmsaga dest={{ informix_dir }}/etc/onconfig.csmsaga
 
 - name: Initialize
   # shell: "INFORMIXSERVER=ol_csmsaga {{ 'INFORMIXDIR='}}{{ informix_dir }}{{' '}}{{ informix_dir }}{{ '/bin/oninit -ivy' }}" 
