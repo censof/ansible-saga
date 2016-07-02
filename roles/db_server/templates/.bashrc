@@ -1,12 +1,11 @@
-# .bash_profile
+# .bashrc
 
-# Get the aliases and functions
-if [ -f ~/.bashrc ]; then
-	. ~/.bashrc
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
 fi
 
-# User specific environment and startup programs
-
+# User specific aliases and functions
 PATH=$PATH:$HOME/bin
 
 export INFORMIXDIR={{ informix_dir }}
@@ -20,8 +19,4 @@ export PATH
 export INFORMIXSERVER
 export ONCONFIG
 export DBDATE
-
-
-
-
 

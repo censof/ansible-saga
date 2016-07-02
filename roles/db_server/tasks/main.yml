@@ -1,29 +1,22 @@
 ---
 # - include: install_conda.yml
+- name: Create informix user
+  user: name=informix
 
 - name: Make directory
-  file: path={{ item }} state=directory owner=root
+  file: path={{ item }} state=directory owner=informix
   with_items:
+    - "{{ informix_dir }}"
     - "{{ informix_home_dir }}{{ '/installer' }}"
     - "{{ informix_home_dir }}{{ '/infx' }}"
     - /opt/installer
 
-- name: Install dependencies
-  yum: name={{ item }} update_cache=yes
+- name: Copy over bashrc and bash_profile
+  template: src=templates/{{ item }} dest=/home/informix/{{ item }}
   with_items:
-    - epel-release
-
-- name: Install dependencies
-  yum: name={{ item }} update_cache=yes
-  with_items:
-    - python-pip
-
-- name: Install pexpect with pip
-  pip: name=pexpect
-
-- name: Manage Informix user
-  user: name=informix shell=/bin/bash state=present
-
+    - .bashrc
+    - .bash_profile
+ 
 - name: Create pre-requisite files
   command: touch {{ item }} creates={{ item }}
   with_items:
@@ -31,6 +24,8 @@
     - "{{ informix_home_dir }}{{ '/datadbs.' }}{{ informix_version }}" 
     - "{{ informix_home_dir }}{{ '/logbs.' }}{{ informix_version }}" 
     - "{{ informix_home_dir }}{{ '/phydbs.' }}{{ informix_version }}" 
+  become: true
+  become_user: informix
 
 - name: Uncompress Informix installer
   unarchive: src=files/Informix-11.70.FC4-x86_64.tar
@@ -41,10 +36,30 @@
   command: ./ids_install -i silent -DLICENSE_ACCEPTED=TRUE -DUSER_INSTALL_DIR={{ informix_dir }}
   args: 
     chdir: /opt/installer
-    creates: "{{ informix_dir }}"
+    creates: "{{ informix_dir }}{{ '/uninstall' }}"
 
-- name: Install template bash_profile
-  template: src=templates/.bash_profile dest=/root/.bash_profile
+- name: Install onconfig.csmsaga
+  template: src=templates/onconfig.csmsaga dest={{ informix_dir }}/etc/onconfig.csmsaga
+
+- name: Initialize
+  # shell: "INFORMIXSERVER=ol_csmsaga {{ 'INFORMIXDIR='}}{{ informix_dir }}{{' '}}{{ informix_dir }}{{ '/bin/oninit -ivy' }}" 
+  shell: ". ~/.bash_profile {{ informix_dir }}{{ '/bin/oninit -ivy' }}" 
+  become: true
+  become_user: informix
+
+- name: Finalize initializations
+  command: /bin/bash  ~/.bash_profile onspaces -c -d datadbs -p {{ informix_home_dir }}/datadbs.11.001 -o 0 -s 20000000
+  become: true
+  become_user: informix
+
+- name: Finalize initializations 2
+  command: /bin/bash ~/.bash_profile onspaces -c -d {{ item }} -p {{ informix_home_dir }}/{{ item }}.11.001 -o 0 -s 5000000 
+  with_items:
+    - logdbs
+    - phydbs
+    - tmpdbs
+  become: true
+  become_user: informix
 
 - name: Add saga services to /etc/services
   lineinfile: dest=/etc/services regexp='^{{ item.value.service_name }}\s'
