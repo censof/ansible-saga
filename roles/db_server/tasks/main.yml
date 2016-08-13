@@ -42,24 +42,19 @@
   template: src=templates/onconfig.csmsaga dest={{ informix_dir }}/etc/onconfig.csmsaga
 
 - name: Initialize
-  # shell: "INFORMIXSERVER=ol_csmsaga {{ 'INFORMIXDIR='}}{{ informix_dir }}{{' '}}{{ informix_dir }}{{ '/bin/oninit -ivy' }}" 
   shell: ". ~/.bash_profile {{ informix_dir }}{{ '/bin/oninit -ivy' }}" 
   become: true
   become_user: informix
 
 - name: Finalize initializations
-  command: /bin/bash  ~/.bash_profile onspaces -c -d datadbs -p {{ informix_home_dir }}/datadbs.11.001 -o 0 -s 20000000
+  command: /bin/bash  ~/.bash_profile onspaces -c -d datadbs -p {{ informix_home_dir }}/{{ item.filename }}.11.001 -o 0 -s {{ item.setting_value }}
   become: true
   become_user: informix
-
-- name: Finalize initializations 2
-  command: /bin/bash ~/.bash_profile onspaces -c -d {{ item }} -p {{ informix_home_dir }}/{{ item }}.11.001 -o 0 -s 5000000 
   with_items:
-    - logdbs
-    - phydbs
-    - tmpdbs
-  become: true
-  become_user: informix
+     - { filename: "datadbs", setting_value: 20000000 }
+     - { filename: "logdbs", setting_value: 50000000 }
+     - { filename: "phydbs", setting_value: 50000000 }
+     - { filename: "tmpdbs", setting_value: 50000000 }
 
 - name: Add saga services to /etc/services
   lineinfile: dest=/etc/services regexp='^{{ item.value.service_name }}\s'
