@@ -27,6 +27,13 @@
   become: true
   become_user: informix
 
+- name: Chmod 660 rootdbs file
+  file: 
+    path: "{{ informix_home_dir }}{{ '/rootdbs.' }}{{ informix_version }}"
+    owner: informix
+    group: informix
+    mode: 0660
+
 - name: Uncompress Informix installer
   unarchive: src=files/Informix-11.70.FC4-x86_64.tar
              dest=/opt/installer 
