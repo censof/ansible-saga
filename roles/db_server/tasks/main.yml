@@ -16,6 +16,8 @@
   with_items:
     - .bashrc
     - .bash_profile
+  become: true
+  become_user: informix
  
 - name: Create pre-requisite files
   command: touch {{ item }} creates={{ item }}
@@ -28,7 +30,7 @@
   become_user: informix
 
 - name: Chmod 660 rootdbs file
-  file: 
+  file:
     path: "{{ informix_home_dir }}{{ '/rootdbs.' }}{{ informix_version }}"
     owner: informix
     group: informix
@@ -48,6 +50,51 @@
 - name: Install onconfig.csmsaga
   template: src=templates/onconfig.csmsaga dest={{ informix_dir }}/etc/onconfig.csmsaga
 
+- name: copy onconfig.csmsaga
+  shell: cp onconfig.std onconfig.csmsaga
+  args:
+       chdir: /opt/IBM/informix/ids/etc/
+  ignore_errors: yes
+
+- name: copy sqlhosts
+  shell: cp sqlhosts.std sqlhosts
+  args:
+       chdir: /opt/IBM/informix/ids/etc/
+  ignore_errors: yes
+
+- name: chmod onconfig.csmsaga
+  shell: chmod 664 onconfig.csmsaga
+  args:
+       chdir: /opt/IBM/informix/ids/etc/
+  ignore_errors: yes
+
+- name: chgrp onconfig.csmsaga
+  shell: chgrp informix onconfig.csmsaga
+  args:
+       chdir: /opt/IBM/informix/ids/etc/
+  ignore_errors: yes
+
+- name: chown onconfig.csmsaga
+  shell: chown informix onconfig.csmsaga
+  args:
+       chdir: /opt/IBM/informix/ids/etc/
+  ignore_errors: yes
+
+- name: Add saga services to /etc/sqlhost
+  lineinfile: dest=/opt/IBM/informix/ids/etc/sqlhosts line='ol_csmsaga       onipcshm       192.168.2.238    service_csmsaga' state=present
+
+- name: chown sqlhosts 
+  shell: chown informix sqlhosts
+  args:
+       chdir: /opt/IBM/informix/ids/etc/
+  ignore_errors: yes
+
+- name: chgrp sqlhosts
+  shell: chgrp informix sqlhosts
+  args:
+       chdir: /opt/IBM/informix/ids/etc/
+  ignore_errors: yes
+
 - name: Initialize
   shell: ". ~/.bash_profile {{ informix_dir }}{{ '/bin/oninit -ivy' }}" 
   become: true
@@ -64,6 +111,7 @@
      - { filename: "tmpdbs", setting_value: 50000000 }
 
 - name: Add saga services to /etc/services
-  lineinfile: dest=/etc/services regexp='^{{ item.value.service_name }}\s'
-              line="{{ item.value.service_name}}    {{ item.value.port }}    {{ '#' }} {{ item.value.service_name }}"
-  with_dict: services
+  lineinfile: dest=/etc/services line='service_csmsaga   21100/tcp' state=present
+- name: Add saga services to /etc/services
+  lineinfile: dest=/etc/services line='service_csmsagatcp   21200/tcp' state=present
+

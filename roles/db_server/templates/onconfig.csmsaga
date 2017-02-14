@@ -40,7 +40,7 @@
 ###################################################################
 
 ROOTNAME rootdbs
-ROOTPATH $INFORMIXDIR/tmp/demo_on.rootdbs
+ROOTPATH ${informix_dir}/rootdbs.11.001
 ROOTOFFSET 0
 ROOTSIZE 200000
 MIRROR 0
