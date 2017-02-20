@@ -4,7 +4,7 @@
 Ansible informix installer.
 
 1) edit roles/db_server/task/main.yml
----- go to line 84 change the ip same as host
+---- find line 84 change the ip same as host
 
 
 2) command to run 
@@ -19,4 +19,11 @@ Ansible informix installer.
 -----find line 205 change to = SERVERNUM 10 
 -----find line 206 change to = DBSERVERNAME     ol_csmsaga
 
+# exit
+# su - informix 
+# oninit -ivy
+# onstat -
+
+test informix
+# dbaccess
 
