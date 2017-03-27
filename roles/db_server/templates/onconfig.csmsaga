@@ -123,8 +123,8 @@ LTXEHWM 80
 # CONSOLE      - The path of the Informix console message file
 ###################################################################
 
-MSGPATH $INFORMIXDIR/tmp/online.log
-CONSOLE $INFORMIXDIR/tmp/online.con
+MSGPATH {{ informix_log_file }}
+CONSOLE {{ informix_console_file }}
 
 ###################################################################
 # Tblspace Configuration Parameters

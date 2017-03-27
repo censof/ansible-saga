@@ -1,6 +1,8 @@
 informix_version: 11.001 
 informix_home_dir: /infxdata/ids
 informix_dir: /opt/IBM/Informix/ids/11.70
+informix_log_file: /opt/IBM/Informix/log/online.log
+informix_console_file: /opt/IBM/Informix/log/online.con
 services:
   service_csmsaga:
     service_name: "service_csmsaga"
