@@ -3,6 +3,14 @@
 - name: Create informix user
   user: name=informix
 
+- name: Install dependencies
+  package: name={{ item }} state=present
+  with_items:
+    - logrotate
+
+- name: Add logrotate for informix log
+  template: src=templates/db_logrotate dest=/etc/logrotate.d/informix
+
 - name: Make directory
   file: path={{ item }} state=directory owner=informix
   with_items:
